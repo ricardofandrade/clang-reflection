@@ -2738,19 +2738,25 @@ static ReflectionTypeTrait ReflectionTypeTraitFromTokKind(tok::TokenKind kind) {
   case tok::kw___record_base_access_spec:          return RTT_RecordBaseAccessSpec;
   case tok::kw___record_base_count:                return RTT_RecordBaseCount;
   case tok::kw___record_base_is_virtual:           return RTT_RecordBaseIsVirtual;
+  case tok::kw___record_direct_base_count:         return RTT_RecordDirectBaseCount;
   case tok::kw___record_virtual_base_count:        return RTT_RecordVirtualBaseCount;
 
   case tok::kw___record_member_field_count:        return RTT_RecordMemberFieldCount;
   case tok::kw___record_member_field_ptr:          return RTT_RecordMemberFieldPtr;
   case tok::kw___object_member_field_ref:          return RTT_ObjectMemberFieldRef;
   case tok::kw___record_member_field_identifier:   return RTT_RecordMemberFieldIdentifier;
-  case tok::kw___record_member_field_access_spec:  return RTT_RecordMemberFieldAccessSpec;
+  case tok::kw___record_member_field_info:         return RTT_RecordMemberFieldInfo;
   case tok::kw___record_member_field_is_mutable:   return RTT_RecordMemberFieldIsMutable;
   case tok::kw___record_member_field_is_bit_field: return RTT_RecordMemberFieldIsBitField;
   case tok::kw___record_member_field_bit_field_size: return RTT_RecordMemberFieldBitFieldSize;
   case tok::kw___record_member_field_is_anon_bit_field: return RTT_RecordMemberFieldIsAnonBitField;
   case tok::kw___record_member_field_is_reference: return RTT_RecordMemberFieldIsReference;
 
+  case tok::kw___record_method_count:        return RTT_RecordMethodCount;
+  case tok::kw___record_method_identifier:   return RTT_RecordMethodIdentifier;
+  case tok::kw___record_function_param_identifier:   return RTT_RecordMethodParamIdentifier;
+  case tok::kw___record_method_info:   return RTT_RecordMethodInfo;
+  case tok::kw___annotate_str:   return RTT_AnnotateStr;
   }
 }
 
@@ -2858,23 +2864,26 @@ ExprResult Parser::ParseReflectionTypeTrait() {
   case RTT_TypeIsUnnamed:
 
   case RTT_RecordBaseCount:
+  case RTT_RecordDirectBaseCount:
   case RTT_RecordVirtualBaseCount:
-
   case RTT_RecordMemberFieldCount:
-
+  
+  case RTT_RecordMethodCount:
+  
+  case RTT_AnnotateStr:
     // Nothing more to parse
     break;
 
 
     // 2 arguments...
   case RTT_ObjectMemberFieldRef:
+  case RTT_RecordMethodParamIdentifier:
     {
       // Parse comma and then expression
       if (ExpectAndConsume(tok::comma, diag::err_expected_comma)) {
         Parens.skipToEnd();
         return ExprError();
       }
-
       ExprResult IdxExpr = ParseAssignmentExpression();
       if (IdxExpr.isInvalid()) {
         Parens.skipToEnd();
@@ -2893,13 +2902,16 @@ ExprResult Parser::ParseReflectionTypeTrait() {
   case RTT_RecordBaseIsVirtual:
 
   case RTT_RecordMemberFieldPtr:
-  case RTT_RecordMemberFieldAccessSpec:
+  case RTT_RecordMemberFieldInfo:
   case RTT_RecordMemberFieldIdentifier:
   case RTT_RecordMemberFieldIsMutable:
   case RTT_RecordMemberFieldIsBitField:
   case RTT_RecordMemberFieldBitFieldSize:
   case RTT_RecordMemberFieldIsAnonBitField:
   case RTT_RecordMemberFieldIsReference:
+
+  case RTT_RecordMethodIdentifier:
+  case RTT_RecordMethodInfo:
     {
     // Parse comma and then expression
     if (ExpectAndConsume(tok::comma, diag::err_expected_comma)) {

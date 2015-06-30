@@ -3288,7 +3288,10 @@ class ReflectionTransformType : public Type {
 public:
   enum RTTKind {
     RecordBaseType,
-    RecordVirtualBaseType
+    RecordDirectBaseType,
+    RecordVirtualBaseType,
+    RecordMemberFieldType,
+    RecordMethodType
   };
 
 private:

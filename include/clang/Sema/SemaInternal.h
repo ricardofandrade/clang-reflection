@@ -32,11 +32,14 @@ const CXXRecordDecl *RequireRecordType(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, bool reqComplete);
 const CXXBaseSpecifier *GetRecordBaseAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr);
+const CXXBaseSpecifier *GetRecordDirectBaseAtIndexPos(Sema& S, SourceLocation KWLoc,
+  TypeSourceInfo *TSInfo, Expr *IdxExpr);
 const CXXBaseSpecifier *GetRecordVBaseAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr);
 FieldDecl *GetRecordMemberFieldAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr);
-
+const CXXMethodDecl *GetRecordMethodAtIndexPos(Sema& S, SourceLocation KWLoc,
+  TypeSourceInfo *TSInfo, Expr *IdxExpr);
 
 // This requires the variable to be non-dependent and the initializer
 // to not be value dependent.

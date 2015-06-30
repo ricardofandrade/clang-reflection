@@ -992,8 +992,12 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
     }
     break;
 
+  case DeclSpec::TST_recordBaseType:
+  case DeclSpec::TST_recordDirectBaseType:
   case DeclSpec::TST_recordVirtualBaseType:
-  case DeclSpec::TST_recordBaseType: {
+  case DeclSpec::TST_RecordMemberFieldType:
+  case DeclSpec::TST_RecordMethodType:
+      {
     TypeSourceInfo *TSInfo = 0;
     Result = S.GetTypeFromParser(DS.getRepAsType(), &TSInfo);
     assert(!Result.isNull() && "Didn't get a type for reflection transform type?");
@@ -1007,6 +1011,15 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
       break;
     case DeclSpec::TST_recordBaseType:
       RTT = ReflectionTransformType::RecordBaseType;
+      break;
+    case DeclSpec::TST_recordDirectBaseType:
+      RTT = ReflectionTransformType::RecordDirectBaseType;
+      break;
+    case DeclSpec::TST_RecordMemberFieldType:
+      RTT = ReflectionTransformType::RecordMemberFieldType;
+      break;
+    case DeclSpec::TST_RecordMethodType:
+      RTT = ReflectionTransformType::RecordMethodType;
       break;
     default:
       llvm_unreachable("Unknown ReflectionTransformType::RTTKind");
@@ -5571,6 +5584,7 @@ QualType Sema::BuildReflectionTransformType(TypeSourceInfo *TSInfo,
     IdxArgs = NewArgs;
 
     switch (Kind) {
+    ///  __record_base_type(R,I)
     case ReflectionTransformType::RecordBaseType: {
       const CXXBaseSpecifier *BS = GetRecordBaseAtIndexPos(*this, Loc, TSInfo, IdxArgs[0]);
       if (!BS)
@@ -5580,6 +5594,18 @@ QualType Sema::BuildReflectionTransformType(TypeSourceInfo *TSInfo,
       break;
                                                   }
 
+    ///  __record_direct_base_type(R,I)
+    case ReflectionTransformType::RecordDirectBaseType: {
+      const CXXBaseSpecifier *BS = GetRecordDirectBaseAtIndexPos(*this, Loc, TSInfo, IdxArgs[0]);
+      if (!BS)
+        return QualType();
+
+      Reflected = ApplyQualRefFromOther(*this, BS->getType(), BaseType);
+      break;
+                                                  }
+
+
+    ///  __record_virtual_base_type(R,I)
     case ReflectionTransformType::RecordVirtualBaseType: {
       const CXXBaseSpecifier *BS = GetRecordVBaseAtIndexPos(*this, Loc, TSInfo, IdxArgs[0]);
       if (!BS)
@@ -5587,7 +5613,47 @@ QualType Sema::BuildReflectionTransformType(TypeSourceInfo *TSInfo,
 
       Reflected = ApplyQualRefFromOther(*this, BS->getType(), BaseType);
       break;
+                                                  }
+
+    ///  __record_member_field_type(R,I)
+    case ReflectionTransformType::RecordMemberFieldType: {
+      FieldDecl *FD = GetRecordMemberFieldAtIndexPos(*this, Loc, TSInfo, IdxArgs[0]);
+      if (!FD)
+        return QualType();
+
+      Reflected = ApplyQualRefFromOther(*this, FD->getType(), BaseType);
+      break;
                                                          }
+
+
+    ///  __record_method_type(R,I)
+    case ReflectionTransformType::RecordMethodType: { 
+      const CXXMethodDecl *MD = GetRecordMethodAtIndexPos(*this, Loc, TSInfo, IdxArgs[0]);
+      if (!MD)
+        return QualType();
+
+      QualType MT = MD->getType(); //class Test() const;
+      //llvm::errs() << " > " << MT.getAsString() << " < \n";
+
+      QualType ClassType = Context.getTypeDeclType(MD->getParent());
+      QualType MPT = Context.getMemberPointerType(MT,ClassType.getTypePtr());  //class Test() const;
+      //llvm::errs() << " > " << MPT.getAsString() << " < \n";
+
+      Reflected = ApplyQualRefFromOther(*this, MPT, BaseType);
+     /* const MemberPointerType* MPT = MT->getAs<MemberPointerType>();
+      if(MPT){ 
+        QualType QT(MPT,0);
+        Reflected = ApplyQualRefFromOther(*this, MPT->getPointeeType(), BaseType);
+      }*/
+      /*const FunctionProtoType *Proto = MT->getAs<FunctionProtoType>();
+      if (!Proto)
+        return QualType();
+
+      QualType QT(Proto,0);
+      Reflected = ApplyQualRefFromOther(*this, QT, BaseType);*/
+      break;
+                                                         }
+
 
     default:
       llvm_unreachable("unknown reflection transform type");

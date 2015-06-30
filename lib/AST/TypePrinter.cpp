@@ -808,8 +808,19 @@ void TypePrinter::printReflectionTransformBefore(const ReflectionTransformType *
   switch (T->getRTTKind()) {
     case ReflectionTransformType::RecordBaseType:
       OS << "__record_base_type(";
+      break;
+    case ReflectionTransformType::RecordDirectBaseType:
+      OS << "__record_direct_base_type(";
+      break;
     case ReflectionTransformType::RecordVirtualBaseType:
       OS << "__record_virtual_base_type(";
+      break;
+    case ReflectionTransformType::RecordMemberFieldType:
+      OS << "__record_member_field_type(";
+      break;
+    case ReflectionTransformType::RecordMethodType:
+      OS << "__record_method_type(";
+      break;
   }
   // Always print base type on which reflection happens
   print(T->getBaseType(), OS, StringRef());

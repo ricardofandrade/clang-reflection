@@ -113,7 +113,10 @@ bool Sema::isSimpleTypeSpecifier(tok::TokenKind Kind) const {
   case tok::annot_decltype:
   case tok::kw_decltype:
   case tok::kw___record_base_type:
+  case tok::kw___record_direct_base_type:
   case tok::kw___record_virtual_base_type:
+  case tok::kw___record_member_field_type:
+  case tok::kw___record_method_type:
     return getLangOpts().CPlusPlus;
 
   default:
@@ -4007,6 +4010,7 @@ static bool RebuildDeclaratorInCurrentInstantiation(Sema &S, Declarator &D,
   DeclSpec &DS = D.getMutableDeclSpec();
   switch (DS.getTypeSpecType()) {
   case DeclSpec::TST_recordBaseType:
+  case DeclSpec::TST_recordDirectBaseType:
   case DeclSpec::TST_recordVirtualBaseType: {
     // Update all parameter expressions
     ArrayRef<Expr*> Args = DS.getParamExprs();

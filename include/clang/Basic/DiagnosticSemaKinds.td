@@ -5728,6 +5728,11 @@ def err_reflection_field_index_out_of_range : Error<
 def err_object_not_of_correct_type_declref : Error<
   "argument has to be a reference to an instance of type %0 (is %1)">;
 
+def err_reflection_method_index_out_of_range : Error<
+  "method index is out-of-range (only %0 method%s0 for type %1)">;
+def err_reflection_parameter_index_out_of_range : Error<
+  "parameter index is out-of-range (only %0 parameter%s0 for type %1)">;
+
 def err_incomplete_type_used_in_type_trait_expr : Error<
   "incomplete type %0 used in type trait expression">;
 def err_type_trait_arity : Error<
@@ -6196,6 +6201,8 @@ def note_printf_c_str: Note<"did you mean to call the %0 method?">;
 def warn_null_arg : Warning<
   "null passed to a callee which requires a non-null argument">,
   InGroup<NonNull>;
+def warn_null_ptr_deref: Warning<
+  "you are about to dereference null ptr, which probably will lead to seg violation. Do you want to proceed?[y/n]">;
 
 // CHECK: returning address/reference of stack memory
 def warn_ret_stack_addr : Warning<
