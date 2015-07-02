@@ -695,6 +695,8 @@ bool Sema::containsUnexpandedParameterPacks(Declarator &D) {
   case TST_recordVirtualBaseType:
   case TST_RecordMemberFieldType:
   case TST_RecordMethodType:
+  case TST_RecordFriendType:
+  case TST_meta_namespaceType:
       {
     // test parameter exprs also
     ArrayRef<Expr*> Args = DS.getParamExprs();

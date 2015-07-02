@@ -40,6 +40,12 @@ FieldDecl *GetRecordMemberFieldAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr);
 const CXXMethodDecl *GetRecordMethodAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr);
+const FriendDecl *GetRecordFriendAtIndexPos(Sema& S, SourceLocation KWLoc,
+  TypeSourceInfo *TSInfo, Expr *IdxExpr);
+const DeclContext *RequireNamespaceDecl(Sema& S, SourceLocation KWLoc,
+  TypeSourceInfo *TSInfo);
+const Decl *GetNamespaceDeclAtIndexPos(Sema& S, SourceLocation KWLoc,
+  TypeSourceInfo *TSInfo, Expr *IdxExpr);
 
 // This requires the variable to be non-dependent and the initializer
 // to not be value dependent.

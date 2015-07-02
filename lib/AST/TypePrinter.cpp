@@ -821,6 +821,12 @@ void TypePrinter::printReflectionTransformBefore(const ReflectionTransformType *
     case ReflectionTransformType::RecordMethodType:
       OS << "__record_method_type(";
       break;
+    case ReflectionTransformType::RecordFriendType:
+      OS << "__record_friend_type(";
+      break;
+    case ReflectionTransformType::NamespaceType:
+      OS << "__namespace_type(";
+      break;
   }
   // Always print base type on which reflection happens
   print(T->getBaseType(), OS, StringRef());

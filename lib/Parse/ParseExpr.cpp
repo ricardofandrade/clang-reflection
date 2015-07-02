@@ -1261,8 +1261,17 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
   case tok::kw___record_method_identifier:
   case tok::kw___record_function_param_identifier:
   case tok::kw___record_method_info:
+
+  case tok::kw___record_friend_count:
+  case tok::kw___record_friend_identifier:
+
   case tok::kw___annotate_str:
     return ParseReflectionTypeTrait();
+
+  case tok::kw___namespace_identifier:
+  case tok::kw___namespace_count:
+    return ParseReflectionTypeTrait();
+  //  return ParseNamespaceReflectionTrait();
 
   case tok::kw___is_trivially_constructible:
     return ParseTypeTrait();

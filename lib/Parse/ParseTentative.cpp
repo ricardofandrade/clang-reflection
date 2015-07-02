@@ -1012,6 +1012,8 @@ Parser::isExpressionOrTypeSpecifierSimple(tok::TokenKind Kind) {
   case tok::kw___record_virtual_base_type:
   case tok::kw___record_member_field_type:
   case tok::kw___record_method_type:
+  case tok::kw___record_friend_type:
+  case tok::kw___namespace_type:
   case tok::kw___cdecl:
   case tok::kw___stdcall:
   case tok::kw___fastcall:
@@ -1491,6 +1493,8 @@ Parser::isCXXDeclarationSpecifier(Parser::TPResult BracedCastResult,
   case tok::kw___record_virtual_base_type:
   case tok::kw___record_member_field_type:
   case tok::kw___record_method_type:
+  case tok::kw___record_friend_type:
+  case tok::kw___namespace_type:
     return TPResult::True();
 
   // C11 _Atomic

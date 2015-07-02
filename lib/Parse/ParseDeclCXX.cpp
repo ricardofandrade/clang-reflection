@@ -857,6 +857,10 @@ void Parser::ParseReflectionTypeSpecifier(DeclSpec &DS) {
     TagType = DeclSpec::TST_RecordMemberFieldType;
   else if (TagTokKind == tok::kw___record_method_type)
     TagType = DeclSpec::TST_RecordMethodType;
+  else if (TagTokKind == tok::kw___record_friend_type)
+    TagType = DeclSpec::TST_RecordFriendType;
+  else if (TagTokKind == tok::kw___namespace_type)
+    TagType = DeclSpec::TST_meta_namespaceType;
   else
     llvm_unreachable("Not a reflection type specifier");
 

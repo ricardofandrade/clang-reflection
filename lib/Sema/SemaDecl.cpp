@@ -117,6 +117,8 @@ bool Sema::isSimpleTypeSpecifier(tok::TokenKind Kind) const {
   case tok::kw___record_virtual_base_type:
   case tok::kw___record_member_field_type:
   case tok::kw___record_method_type:
+  case tok::kw___record_friend_type:
+  case tok::kw___namespace_type:
     return getLangOpts().CPlusPlus;
 
   default:

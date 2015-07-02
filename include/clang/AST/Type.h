@@ -3291,7 +3291,9 @@ public:
     RecordDirectBaseType,
     RecordVirtualBaseType,
     RecordMemberFieldType,
-    RecordMethodType
+    RecordMethodType,
+    RecordFriendType,
+    NamespaceType
   };
 
 private:

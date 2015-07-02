@@ -288,6 +288,8 @@ public:
   static const TST TST_recordVirtualBaseType = clang::TST_recordVirtualBaseType;
   static const TST TST_RecordMethodType = clang::TST_RecordMethodType;
   static const TST TST_RecordMemberFieldType = clang::TST_RecordMemberFieldType;
+  static const TST TST_RecordFriendType = clang::TST_RecordFriendType;
+  static const TST TST_meta_namespaceType = clang::TST_meta_namespaceType;
   static const TST TST_auto = clang::TST_auto;
   static const TST TST_unknown_anytype = clang::TST_unknown_anytype;
   static const TST TST_atomic = clang::TST_atomic;

@@ -414,6 +414,9 @@ KEYWORD(__record_direct_base_type        , KEYCXX)
 KEYWORD(__record_virtual_base_count      , KEYCXX)
 KEYWORD(__record_virtual_base_type       , KEYCXX)
 
+//KEYWORD(__record_type_is_thin            , KEYCXX)
+//KEYWORD(__record_type_has_straight_mbr_order   , KEYCXX)
+
 KEYWORD(__record_member_field_count      , KEYCXX)
 KEYWORD(__record_member_field_ptr        , KEYCXX)
 KEYWORD(__object_member_field_ref        , KEYCXX)
@@ -425,13 +428,22 @@ KEYWORD(__record_member_field_bit_field_size   , KEYCXX)
 KEYWORD(__record_member_field_is_anon_bit_field, KEYCXX)
 KEYWORD(__record_member_field_is_reference     , KEYCXX)
 
-// New methods reflection type traits
+// member function traits
 KEYWORD(__record_method_count       , KEYCXX)
 KEYWORD(__record_method_identifier  , KEYCXX)
 KEYWORD(__record_method_type        , KEYCXX)
 KEYWORD(__record_member_field_type  , KEYCXX)
 KEYWORD(__record_function_param_identifier  , KEYCXX)
 KEYWORD(__record_method_info        , KEYCXX) 
+// friend traits
+KEYWORD(__record_friend_count       , KEYCXX)
+KEYWORD(__record_friend_identifier  , KEYCXX)
+KEYWORD(__record_friend_type        , KEYCXX)
+// namespace traits
+KEYWORD(__namespace_count           , KEYCXX)
+KEYWORD(__namespace_identifier      , KEYCXX)
+KEYWORD(__namespace_type            , KEYCXX)
+// TODO 
 KEYWORD(__annotate_str              , KEYCXX) 
 
 // Embarcadero Expression Traits

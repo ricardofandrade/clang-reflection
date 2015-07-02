@@ -4248,6 +4248,10 @@ public:
                                       TypeSourceInfo *TSInfo,
                                       ArrayRef<Expr*> IdxArgs,
                                       SourceLocation RParen);
+  ExprResult ActOnNamespaceTrait(ReflectionTypeTrait RTT,
+                                 SourceLocation KWLoc,
+                                 Expr *Queried,
+                                 SourceLocation RParen);
 
   /// \brief Parsed one of the type trait support pseudo-functions.
   ExprResult ActOnTypeTrait(TypeTrait Kind, SourceLocation KWLoc,

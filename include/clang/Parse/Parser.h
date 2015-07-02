@@ -2280,6 +2280,7 @@ private:
   //===--------------------------------------------------------------------===//
   // Experimental: Reflection Traits
   ExprResult ParseReflectionTypeTrait();
+  ExprResult ParseNamespaceReflectionTrait();
 
   //===--------------------------------------------------------------------===//
   // Embarcadero: Arary and Expression Traits

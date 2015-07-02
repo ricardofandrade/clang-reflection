@@ -135,6 +135,13 @@ namespace clang {
     RTT_RecordMethodIdentifier,
     RTT_RecordMethodParamIdentifier,
     RTT_RecordMethodInfo,
+
+    RTT_RecordFriendCount,
+    RTT_RecordFriendIdentifier,
+
+    RTT_NamespaceIdentifier,
+    RTT_NamespaceCount,
+
     RTT_AnnotateStr
   };
 

@@ -3600,6 +3600,22 @@ ExprResult Sema::ActOnReflectionTypeTrait(ReflectionTypeTrait RTT,
 
   return BuildReflectionTypeTrait(RTT, KWLoc, TSInfo, IdxArgs, RParen);
 }
+
+#if 0
+ExprResult Sema::ActOnNamespaceTrait(ReflectionTypeTrait RTT,
+                                     SourceLocation KWLoc,
+                                     Expr *Queried,
+                                     SourceLocation RParen) {
+  // If error parsing the expression, ignore.
+  if (!Queried)
+    return ExprError();
+
+  ExprResult Result; // = BuildReflectionTypeTrait(RTT, KWLoc, Queried, RParen);
+  /// TODO 
+  return Result;
+}
+#endif
+
 #if 0 //TODO  param name
 static const FunctionDecl *RequireFunctionType(Sema& S, SourceLocation KWLoc,
                                                TypeSourceInfo *TSInfo)
@@ -3761,7 +3777,42 @@ const CXXRecordDecl *clang::RequireRecordType(Sema& S, SourceLocation KWLoc,
   return RD;
 }
 
+#if 1 //TODO >>
+const DeclContext * clang::RequireNamespaceDecl(Sema& S, SourceLocation KWLoc,
+                                          TypeSourceInfo *TSInfo)
+{
+  //namespaces are not typed declarations, they have to be treated differently
+  //so we use some type inside this namespace to access it.
+  QualType QT = TSInfo->getType().getNonReferenceType();
+  const Type *T = QT.getTypePtr();
 
+  //NamespaceDecl *ND = 0;
+  const DeclContext *DC = 0;
+  //access namespace by any class that belong to it.
+  if (const RecordType *RT = T->getAs<RecordType>()) {
+    CXXRecordDecl *RD = cast<CXXRecordDecl>(RT->getDecl());
+    //ND = cast<NamespaceDecl>(RD->getDeclContext());
+    DC = RD->getDeclContext();
+  }
+  return DC;
+  //return ND;
+}
+#endif
+
+#if 0   //TODO >>>
+typedef llvm::SmallPtrSet<const CXXRecordDecl*, 4> BaseSet;
+
+static bool BaseIsNotInSet(const CXXRecordDecl *Base, void *BasesPtr) {
+  BaseSet &Bases = *reinterpret_cast<BaseSet*>(BasesPtr);
+  Bases.insert(Base->getCanonicalDecl());
+  return true;
+}
+/// Fill Bases with all bases of Record
+static bool getAllBases(const CXXRecordDecl *Record, BaseSet &Bases) {
+  void *BasesPtr = const_cast<void*>(reinterpret_cast<const void*>(&Bases));
+  return Record->forallBases(BaseIsNotInSet, BasesPtr,false);
+}
+#endif
 
 #if 1   //TODO >>>
 typedef llvm::SmallPtrSet<const CXXRecordDecl*, 4> BaseSet;
@@ -3934,7 +3985,7 @@ static int RequireValidIndex(Sema& S, SourceLocation KWLoc,
 }
 #endif 
 
-#if 1
+
 const CXXMethodDecl *clang::GetRecordMethodAtIndexPos(Sema& S, SourceLocation KWLoc,
   TypeSourceInfo *TSInfo, Expr *IdxExpr)
 {
@@ -3956,9 +4007,30 @@ const CXXMethodDecl *clang::GetRecordMethodAtIndexPos(Sema& S, SourceLocation KW
 
   return *It;
 }
-#endif
 
-#if 1 //TODO  param name
+const FriendDecl * clang::GetRecordFriendAtIndexPos(Sema& S, SourceLocation KWLoc,
+                                                      TypeSourceInfo *TSInfo, Expr *IdxExpr)
+{
+  // T has to be a record type (not complete)
+  const CXXRecordDecl *RD = RequireRecordType(S, KWLoc, TSInfo, false);
+  if (!RD)
+    return 0;
+
+  // Evaluate the index expression, error on Idx < 0
+  size_t MaxIdx = std::distance(RD->friend_begin(), RD->friend_end());
+  //TODO:  change this to RequireValidMethodIndex() !
+  int Idx = RequireValidIndex(S, KWLoc, TSInfo, IdxExpr, MaxIdx, diag::err_reflection_method_index_out_of_range);
+  if (Idx < 0)
+    return 0;
+
+  // Get the requested field decl
+  CXXRecordDecl::friend_iterator It = RD->friend_begin();
+  std::advance(It, Idx);
+
+  return *It;
+}
+
+// param name
 const ParmVarDecl * /* clang:: */ GetParmVarDeclAtIndexPos(Sema& S, SourceLocation KWLoc,
                                                        TypeSourceInfo *TSInfo, 
                                                        const CXXMethodDecl *MD, Expr *IdxExpr)
@@ -3975,6 +4047,44 @@ const ParmVarDecl * /* clang:: */ GetParmVarDeclAtIndexPos(Sema& S, SourceLocati
     std::advance(It, Idx);
 
     return *It;
+}
+
+#if 1
+const Decl * clang::GetNamespaceDeclAtIndexPos(Sema& S, SourceLocation KWLoc,
+                                               TypeSourceInfo *TSInfo, Expr *IdxExpr)
+{
+  const NamespaceDecl *ND = cast<NamespaceDecl>(RequireNamespaceDecl(S, KWLoc, TSInfo));
+  if (!ND)
+    return 0;
+
+  // Evaluate the index expression, error on Idx < 0
+  size_t MaxIdx = 0;
+  for (NamespaceDecl::redecl_iterator
+    I = ND->redecls_begin(), E = ND->redecls_end(); I != E; ++I) {
+      MaxIdx += std::distance(I->decls_begin(), I->decls_end());
+  }
+
+  int Idx = RequireValidIndex(S, KWLoc, TSInfo, IdxExpr, MaxIdx, diag::err_reflection_method_index_out_of_range);
+  if (Idx < 0)
+    return 0;
+
+  // get required Decl from this namespace 
+  // TODO   filter out all not types.
+  const Decl *D = 0;
+  int i = 0;
+  for (NamespaceDecl::redecl_iterator
+    ND_I = ND->redecls_begin(), ND_E = ND->redecls_end(); ND_I!=ND_E; ++ND_I) {
+      for (DeclContext::decl_iterator 
+        I = ND_I->decls_begin(), E = ND_I->decls_end(); I!=E; ++I) {
+          if(i==Idx) {
+            D = *I;
+            return D;
+          }
+          ++i;
+      }
+  }
+
+  return D;
 }
 #endif
 
@@ -4006,7 +4116,7 @@ struct EumConstantDeclValueCmp {
   }
 };
 
-enum meta_info_enum
+enum ReflectionSpecs
 {
   //access qualifiers
   SPECS_PUBLIC      = (1<<1), //public access
@@ -4143,6 +4253,8 @@ ExprResult Sema::BuildReflectionTypeTrait(ReflectionTypeTrait RTT,
   case RTT_RecordMemberFieldCount:
   case RTT_RecordMemberFieldBitFieldSize:
   case RTT_RecordMethodCount:
+  case RTT_RecordFriendCount:
+  case RTT_NamespaceCount:
     // always "size_t" result type:
     VType = Context.getSizeType();
     break;
@@ -4190,6 +4302,8 @@ ExprResult Sema::BuildReflectionTypeTrait(ReflectionTypeTrait RTT,
   case RTT_RecordMemberFieldIdentifier:
   case RTT_RecordMethodIdentifier:
   case RTT_RecordMethodParamIdentifier:
+  case RTT_RecordFriendIdentifier:
+  case RTT_NamespaceIdentifier:
   case RTT_AnnotateStr:
     // String literals are lvalues
     VKind = VK_LValue;
@@ -4486,6 +4600,7 @@ ExprResult Sema::BuildReflectionTypeTrait(ReflectionTypeTrait RTT,
       break;
                              }
 
+    /// __type_canonical_name
     case RTT_TypeCanonicalName: {
       PrintingPolicy PP(LangOpts);
       PP.SuppressTagKeyword = true;   // no 'struct', 'class'...
@@ -4702,7 +4817,7 @@ ExprResult Sema::BuildReflectionTypeTrait(ReflectionTypeTrait RTT,
       // Just take the Decl name
       //PrintingPolicy PP(LangOpts);
       //PP.SuppressUnwrittenScope = true;  // see above
-      //We use a human-readable nameSPECS_CONSTEXPR for the declaration for now.
+      //We use a human-readable name for the declaration for now.
       Value = AllocateStringLiteral(Context, KWLoc, VType, MD->getNameAsString());
       break;
                              }
@@ -4722,6 +4837,90 @@ ExprResult Sema::BuildReflectionTypeTrait(ReflectionTypeTrait RTT,
       Value = AllocateStringLiteral(Context, KWLoc, VType, PD->getName()); //default
       break;
                                    }
+
+
+    ///__record_friend_count(R)
+    case RTT_RecordFriendCount: { 
+      // Complete definition required!
+      const CXXRecordDecl *RD = RequireRecordType(*this, KWLoc, TSInfo, true);
+      if (!RD)
+        return ExprError();
+
+      // Count how many methods are in this record
+      uint64_t val = std::distance(RD->friend_begin(), RD->friend_end());
+      llvm::APSInt apval = Context.MakeIntValue(val, VType);
+      Value = IntegerLiteral::Create(Context, apval, VType, KWLoc);
+      break;
+                                }
+
+    ///__record_friend_identifier(R,I)
+    case RTT_RecordFriendIdentifier: { 
+      const FriendDecl *FD = GetRecordFriendAtIndexPos(*this, KWLoc, TSInfo, IdxArgs[0]);
+      if (!FD)
+        return ExprError();
+
+      if (const NamedDecl *ND = FD->getFriendDecl()) {
+        // function friend
+        Value = AllocateStringLiteral(Context, KWLoc, VType, ND->getNameAsString());
+      } else if (TypeSourceInfo *FT = FD->getFriendType()) {
+        // class friend
+        QualType QT = FT->getType();
+        PrintingPolicy PP(LangOpts);
+        PP.SuppressTagKeyword = true;   // no 'struct', 'class'...
+        PP.SuppressUnwrittenScope = true;   // do not add <anonymous>:: if type is defined in anon. NS
+        Value = AllocateStringLiteral(Context, KWLoc, VType, QT.getCanonicalType().getAsString(PP));
+      } else {
+        //this should never happens
+        std::string str;
+        Value = AllocateStringLiteral(Context, KWLoc, VType, str);
+        llvm::errs() << " unknown friend identifier from __record_friend_identifier \n";
+      }
+      break;
+                                     }
+
+#if 1  //TODO >>>
+    ///__namespace_count(R)
+    case RTT_NamespaceCount: { 
+      const NamespaceDecl *ND = cast<NamespaceDecl>(RequireNamespaceDecl(*this, KWLoc, TSInfo));
+      if (!ND)
+        return ExprError();
+
+      const NamespaceDecl *FirstND = ND->getOriginalNamespace();
+      const NamespaceDecl *MostRecentND = ND->getMostRecentDecl();
+      if (!MostRecentND)
+        return ExprError();
+
+      uint64_t total_cnt = 0;
+      for (NamespaceDecl::redecl_iterator
+           I = ND->redecls_begin(), E = ND->redecls_end(); I != E; ++I) {
+        total_cnt += std::distance(I->decls_begin(), I->decls_end());
+      }
+      // Count how many types are in this(current) namespace
+      //uint64_t cur_cnt = std::distance(ND->decls_begin(), ND->decls_end());
+      //llvm::errs() << " __namespace_count  " << total_cnt << " " << cur_cnt << "  \n";
+
+      llvm::APSInt apval = Context.MakeIntValue(total_cnt, VType);
+      Value = IntegerLiteral::Create(Context, apval, VType, KWLoc);
+      break;
+                                }
+
+
+    ///__namespace_identifier(N,I)
+    case RTT_NamespaceIdentifier: { 
+      const Decl *D = GetNamespaceDeclAtIndexPos(*this, KWLoc, TSInfo, IdxArgs[0]);     
+      if(!D)
+        return ExprError();
+      if (const NamedDecl *ND = dyn_cast<NamedDecl>(D) ) {
+        Value = AllocateStringLiteral(Context, KWLoc, VType, ND->getNameAsString());
+      } else {
+        //this should never happens
+        std::string str;
+        Value = AllocateStringLiteral(Context, KWLoc, VType, str);
+        llvm::errs() << " unknown friend identifier from __namespace_identifier \n";
+      }
+      break;
+                                }
+#endif
 
 #if 1 //TODO >>>
     ///__record_annotate_str(T)  //__annotate_str

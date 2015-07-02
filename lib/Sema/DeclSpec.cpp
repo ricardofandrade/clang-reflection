@@ -298,6 +298,8 @@ bool Declarator::isDeclarationOfFunction() const {
     case TST_recordVirtualBaseType:
     case TST_RecordMemberFieldType:
     case TST_RecordMethodType:
+    case TST_RecordFriendType:
+    case TST_meta_namespaceType:
       return false;
 
     case TST_decltype_auto:
@@ -459,6 +461,8 @@ const char *DeclSpec::getSpecifierName(DeclSpec::TST T) {
   case DeclSpec::TST_recordVirtualBaseType: return "__record_virtual_base_type";
   case DeclSpec::TST_RecordMemberFieldType: return "__record_member_field_type";
   case DeclSpec::TST_RecordMethodType: return "__record_method_type";
+  case DeclSpec::TST_RecordFriendType: return "__record_friend_type";
+  case DeclSpec::TST_meta_namespaceType: return "__namespace_type";
   case DeclSpec::TST_unknown_anytype: return "__unknown_anytype";
   case DeclSpec::TST_atomic: return "_Atomic";
   case DeclSpec::TST_image1d_t:   return "image1d_t";

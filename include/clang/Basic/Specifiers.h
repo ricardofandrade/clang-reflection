@@ -66,6 +66,8 @@ namespace clang {
     TST_recordVirtualBaseType,  //  __record_virtual_base_type
     TST_RecordMemberFieldType,  //  __record_member_field_type
     TST_RecordMethodType,       //  __record_method_type
+    TST_RecordFriendType,       //  __record_friend_type
+    TST_meta_namespaceType,     //  __namespace_type
     TST_unknown_anytype,  // __unknown_anytype extension
     TST_atomic,           // C11 _Atomic
     TST_image1d_t,        // OpenCL image1d_t

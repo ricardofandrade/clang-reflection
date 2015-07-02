@@ -2756,6 +2756,13 @@ static ReflectionTypeTrait ReflectionTypeTraitFromTokKind(tok::TokenKind kind) {
   case tok::kw___record_method_identifier:   return RTT_RecordMethodIdentifier;
   case tok::kw___record_function_param_identifier:   return RTT_RecordMethodParamIdentifier;
   case tok::kw___record_method_info:   return RTT_RecordMethodInfo;
+
+  case tok::kw___record_friend_count:        return RTT_RecordFriendCount;
+  case tok::kw___record_friend_identifier:   return RTT_RecordFriendIdentifier;
+
+  case tok::kw___namespace_identifier:   return RTT_NamespaceIdentifier;
+  case tok::kw___namespace_count:   return RTT_NamespaceCount;
+
   case tok::kw___annotate_str:   return RTT_AnnotateStr;
   }
 }
@@ -2869,7 +2876,10 @@ ExprResult Parser::ParseReflectionTypeTrait() {
   case RTT_RecordMemberFieldCount:
   
   case RTT_RecordMethodCount:
-  
+  case RTT_RecordFriendCount:
+
+  case RTT_NamespaceCount:
+
   case RTT_AnnotateStr:
     // Nothing more to parse
     break;
@@ -2912,6 +2922,9 @@ ExprResult Parser::ParseReflectionTypeTrait() {
 
   case RTT_RecordMethodIdentifier:
   case RTT_RecordMethodInfo:
+
+  case RTT_RecordFriendIdentifier:
+  case RTT_NamespaceIdentifier:
     {
     // Parse comma and then expression
     if (ExpectAndConsume(tok::comma, diag::err_expected_comma)) {
@@ -2936,6 +2949,29 @@ ExprResult Parser::ParseReflectionTypeTrait() {
   return Actions.ActOnReflectionTypeTrait(RTT, Loc, Ty.get(),
     Args, Parens.getCloseLocation());
 }
+
+#if 0
+/// ParseReflectionTrait - Parse ....
+///
+///       primary-expression:
+///             '__namespace_count' '(' namespace ident ')'
+///
+ExprResult Parser::ParseNamespaceReflectionTrait() {
+  ReflectionTypeTrait RTT = ReflectionTypeTraitFromTokKind(Tok.getKind());
+  SourceLocation Loc = ConsumeToken();
+
+  BalancedDelimiterTracker T(*this, tok::l_paren);
+  if (T.expectAndConsume(diag::err_expected_lparen))
+    return ExprError();
+
+  ExprResult Expr = ParseExpression();
+
+  T.consumeClose();
+
+  return Actions.ActOnNamespaceTrait(RTT, Loc, Expr.get(),
+    T.getCloseLocation());
+}
+#endif
 
 /// \brief Parse the built-in type-trait pseudo-functions that allow 
 /// implementation of the TR1/C++11 type traits templates.
